@@ -2,7 +2,7 @@ import torch
 import time
 import numpy as np
 
-
+# https://github.com/Ageliss/For_shared_codes
 # https://pytorch.org/docs/stable/autograd.html # https://stackoverflow.com/questions/64024312/how-to-compute-hessian-matrix-for-all-parameters-in-a-network-in-pytorch
 # https://github.com/noahgolmant/pytorch-hessian-eigenthings
 def get_second_order_grad(grads, xs):
