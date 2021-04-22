@@ -1,18 +1,5 @@
-.vscode/sftp.json
-.ipynb_checkpoints/data-checkpoint.py
-.ipynb_checkpoints/evals-checkpoint.py
-.ipynb_checkpoints/losses-checkpoint.py
-.ipynb_checkpoints/main-checkpoint.ipynb
-.ipynb_checkpoints/model-checkpoint.py
-.ipynb_checkpoints/trainer-checkpoint.py
-.ipynb_checkpoints/updates-checkpoint.py
-.ipynb_checkpoints/utils-checkpoint.py
-__pycache__/data.cpython-37.pyc
-__pycache__/evals.cpython-37.pyc
-__pycache__/losses.cpython-37.pyc
-__pycache__/model.cpython-37.pyc
-__pycache__/trainer.cpython-37.pyc
-__pycache__/updates.cpython-37.pyc
-__pycache__/utils.cpython-37.pyc
+.vscode/*
+.ipynb_checkpoints/*
+__pycache__/*
 drive/My Drive/*
 datasets/*
