@@ -449,20 +449,51 @@ def train_2nd_order_manual(
             # Calculating the JVP
             dLD_dG = torch.autograd.grad(lossD, G.parameters(), create_graph=True)
             dLG_dD = torch.autograd.grad(lossG, D.parameters(), create_graph=True)
-            J_D_P_dLD_dG = torch.autograd.grad(
+            J_D_P_dLG_dD = torch.autograd.grad(
                 gradsD, G.parameters(), grad_outputs=dLG_dD
             )
             J_G_P_grad_D = torch.autograd.grad(
                 gradsG, D.parameters(), grad_outputs=dLD_dG
             )
             # Calculating the LOLA Step
-            gradsD_LOLA = detach_tuple(gradsD + J_D_P_dLD_dG * eta)
-            gradsG_LOLA = detach_tuple(gradsG + J_G_P_grad_D * eta)
+            gradsD_LOLA = detach_tuple(gradsD + J_G_P_grad_D * eta)
+            gradsG_LOLA = detach_tuple(gradsG + J_D_P_dLG_dD * eta)
 
             # Updating the Networks
             for param, grad in zip(D.parameters(), gradsD_LOLA):
                 param.data -= grad * lrD
             for param, grad in zip(G.parameters(), gradsG_LOLA):
+                param.data -= grad * lrG
+        elif type_ == "both":
+            # Calculating the JVP
+            dLD_dG = torch.autograd.grad(lossD, G.parameters(), create_graph=True)
+            dLG_dD = torch.autograd.grad(lossG, D.parameters(), create_graph=True)
+            J_D_P_dLG_dD = torch.autograd.grad(
+                gradsD, G.parameters(), grad_outputs=dLG_dD
+            )
+            J_G_P_grad_D = torch.autograd.grad(
+                gradsG, D.parameters(), grad_outputs=dLD_dG
+            )
+            J_D_P_grad_G = torch.autograd.grad(
+                dLD_dG, D.parameters(), grad_outputs=gradsG
+            )
+            J_G_P_grad_D = torch.autograd.grad(
+                dLG_dD, G.parameters(), grad_outputs=gradsD
+            )
+            # Calculating the LOLA Step
+            gradsD_both = detach_tuple(gradsD + J_G_P_grad_D * eta + J_D_P_grad_G * eta)
+            gradsG_both = detach_tuple(gradsG + J_D_P_dLG_dD * eta + J_G_P_grad_D * eta)
+
+            # Updating the Networks
+            for param, grad in zip(D.parameters(), gradsD_both):
+                param.data -= grad * lrD
+            for param, grad in zip(G.parameters(), gradsG_both):
+                param.data -= grad * lrG
+        elif type == "SGD":
+            # Updating the Networks
+            for param, grad in zip(D.parameters(), gradsD):
+                param.data -= grad * lrD
+            for param, grad in zip(G.parameters(), gradsG):
                 param.data -= grad * lrG
         if i % 20000 == 0:
             save_models(G, D, None, None, out_dir, suffix=f"{i}", withoutOpt=True)
