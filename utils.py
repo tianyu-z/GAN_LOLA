@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from evals import compute_mu_sigma_pretrained_model, get_metrics
 from data import load_mnist
 from model import pretrained_mnist_model
+import operator
 
 
 def save_models(G, D, opt_G, opt_D, out_dir, suffix, withoutOpt=False):
@@ -111,4 +112,17 @@ def get_plot_func(out_dir, img_size, num_samples_eval=10000, save_curves=None):
             json.dump(curves, fs)
 
     return plot_func
+
+
+def get_update_tuple(first, second, third=None, eta=1, isBoth=False):
+    if isBoth:
+        return tuple(
+            map(
+                operator.add,
+                tuple(map(operator.add, first, tuple(map(lambda x: x * eta, second)))),
+                tuple(map(lambda x: x * eta, third)),
+            )
+        )
+    else:
+        return tuple(map(operator.add, first, tuple(map(lambda x: x * eta, second))))
 

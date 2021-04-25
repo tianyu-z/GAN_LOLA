@@ -5,7 +5,7 @@ import copy
 from data import get_sampler
 from updates import Lookahead, update_avg_gen, update_ema_gen
 from losses import get_generator_loss, get_disciminator_loss
-from utils import save_models, detach_tuple
+from utils import save_models, detach_tuple, get_update_tuple
 
 
 def train(
@@ -437,10 +437,23 @@ def train_2nd_order_manual(
             )
 
             # Calculating the LookAhead Step
-            gradsD_LookAhead = detach_tuple(gradsD + J_D_P_grad_G * eta)
-            gradsG_LookAhead = detach_tuple(gradsG + J_G_P_grad_D * eta)
+            gradsD_LookAhead = detach_tuple(
+                get_update_tuple(gradsD, J_D_P_grad_G, third=None, eta=eta)
+            )
+            gradsG_LookAhead = detach_tuple(
+                get_update_tuple(gradsG, J_G_P_grad_D, third=None, eta=eta)
+            )
+            if i == 0:
+                # Checking the Params
+                assert len(list(D.parameters())) == len(
+                    gradsD_LookAhead
+                ), "len of gradsD_LookAhead error!"
+                assert len(list(G.parameters())) == len(
+                    gradsG_LookAhead
+                ), "len of gradsG_LookAhead error!"
 
             # Updating the Networks
+
             for param, grad in zip(D.parameters(), gradsD_LookAhead):
                 param.data -= grad * lrD
             for param, grad in zip(G.parameters(), gradsG_LookAhead):
@@ -456,8 +469,20 @@ def train_2nd_order_manual(
                 gradsG, D.parameters(), grad_outputs=dLD_dG
             )
             # Calculating the LOLA Step
-            gradsD_LOLA = detach_tuple(gradsD + J_G_P_dLD_dG * eta)
-            gradsG_LOLA = detach_tuple(gradsG + J_D_P_dLG_dD * eta)
+            gradsD_LOLA = detach_tuple(
+                get_update_tuple(gradsD, J_G_P_dLD_dG, third=None, eta=eta)
+            )
+            gradsG_LOLA = detach_tuple(
+                get_update_tuple(gradsG, J_D_P_dLG_dD, third=None, eta=eta)
+            )
+            if i == 0:
+                # Checking the Params
+                assert len(list(D.parameters())) == len(
+                    gradsD_LOLA
+                ), "len of gradsD_LOLA error!"
+                assert len(list(G.parameters())) == len(
+                    gradsG_LOLA
+                ), "len of gradsG_LOLA error!"
 
             # Updating the Networks
             for param, grad in zip(D.parameters(), gradsD_LOLA):
@@ -481,15 +506,32 @@ def train_2nd_order_manual(
                 dLG_dD, G.parameters(), grad_outputs=gradsD
             )  # lookahead
             # Calculating the LOLA Step
-            gradsD_both = detach_tuple(gradsD + J_G_P_dLD_dG * eta + J_D_P_grad_G * eta)
-            gradsG_both = detach_tuple(gradsG + J_D_P_dLG_dD * eta + J_G_P_grad_D * eta)
+            gradsD_both = detach_tuple(
+                get_update_tuple(
+                    gradsD, J_G_P_dLD_dG, J_D_P_grad_G, eta=eta, isBoth=True
+                )
+            )
+            gradsG_both = detach_tuple(
+                get_update_tuple(
+                    gradsG, J_D_P_dLG_dD, J_G_P_grad_D, eta=eta, isBoth=True
+                )
+            )
+
+            if i == 0:
+                # Checking the Params
+                assert len(list(D.parameters())) == len(
+                    gradsD_both
+                ), "len of gradsD_both error!"
+                assert len(list(G.parameters())) == len(
+                    gradsG_both
+                ), "len of gradsG_both error!"
 
             # Updating the Networks
             for param, grad in zip(D.parameters(), gradsD_both):
                 param.data -= grad * lrD
             for param, grad in zip(G.parameters(), gradsG_both):
                 param.data -= grad * lrG
-        elif type == "sgd":
+        elif type_ == "sgd":
             # Updating the Networks
             for param, grad in zip(D.parameters(), gradsD):
                 param.data -= grad * lrD
