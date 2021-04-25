@@ -27,7 +27,7 @@ def get_num_params(model):
 
 
 def detach_tuple(Tuple):
-    return (x.detach_() for x in Tuple)
+    return tuple(x.detach_() for x in Tuple)
 
 
 def get_plot_func(out_dir, img_size, num_samples_eval=10000, save_curves=None):
