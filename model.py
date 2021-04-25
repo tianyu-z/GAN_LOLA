@@ -5,18 +5,15 @@ from collections import OrderedDict
 import os
 
 
-_NOISE_DIM = 128
-_H_FILTERS = 64
-
-
 class DiscriminatorCNN28(nn.Module):
     def __init__(
         self,
         img_channels=1,
-        h_filters=_H_FILTERS,
+        h_filters=64,
         spectral_norm=False,
         img_size=None,
         n_outputs=1,
+        affine=False,
     ):
         if any(
             not isinstance(_arg, int) for _arg in [img_channels, h_filters, n_outputs]
@@ -42,10 +39,10 @@ class DiscriminatorCNN28(nn.Module):
             _apply_sn(nn.Conv2d(img_channels, h_filters, 4, 2, 1, bias=False)),
             nn.LeakyReLU(0.2, inplace=True),
             _apply_sn(nn.Conv2d(h_filters, h_filters * 2, 4, 2, 1, bias=False)),
-            nn.BatchNorm2d(h_filters * 2),
+            nn.BatchNorm2d(h_filters * 2, affine=affine),
             nn.LeakyReLU(0.2, inplace=True),
             _apply_sn(nn.Conv2d(h_filters * 2, h_filters * 4, 4, 2, 1, bias=False)),
-            nn.BatchNorm2d(h_filters * 4),
+            nn.BatchNorm2d(h_filters * 4, affine=affine),
             nn.LeakyReLU(0.2, inplace=True),
             _apply_sn(nn.Conv2d(h_filters * 4, self.n_outputs, 3, 1, 0, bias=False)),
         )
@@ -70,7 +67,7 @@ class DiscriminatorCNN28(nn.Module):
 
 class GeneratorCNN28(nn.Module):
     def __init__(
-        self, img_channels=1, noise_dim=_NOISE_DIM, h_filters=_H_FILTERS, out_tanh=False
+        self, img_channels=1, noise_dim=128, h_filters=64, out_tanh=False, affine=False
     ):
         if any(
             not isinstance(_arg, int) for _arg in [img_channels, noise_dim, h_filters]
@@ -86,13 +83,13 @@ class GeneratorCNN28(nn.Module):
         self.noise_dim = noise_dim
         self.main = nn.Sequential(
             nn.ConvTranspose2d(noise_dim, h_filters * 8, 3, 1, 0, bias=False),
-            nn.BatchNorm2d(_H_FILTERS * 8),
+            nn.BatchNorm2d(h_filters * 8, affine=affine),
             nn.ReLU(inplace=True),
             nn.ConvTranspose2d(h_filters * 8, h_filters * 4, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(_H_FILTERS * 4),
+            nn.BatchNorm2d(h_filters * 4, affine=affine),
             nn.ReLU(inplace=True),
             nn.ConvTranspose2d(h_filters * 4, h_filters * 2, 4, 2, 0, bias=False),
-            nn.BatchNorm2d(_H_FILTERS * 2),
+            nn.BatchNorm2d(h_filters * 2, affine=affine),
             nn.ReLU(inplace=True),
             nn.ConvTranspose2d(h_filters * 2, img_channels, 4, 2, 1, bias=False),
             nn.Tanh() if out_tanh else nn.Sigmoid(),

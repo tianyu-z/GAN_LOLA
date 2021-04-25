@@ -10,11 +10,23 @@ from data import load_mnist
 from model import pretrained_mnist_model
 
 
-def save_models(G, D, opt_G, opt_D, out_dir, suffix):
+def save_models(G, D, opt_G, opt_D, out_dir, suffix, withoutOpt=False):
     torch.save(G.state_dict(), os.path.join(out_dir, f"gen_{suffix}.pth"))
     torch.save(D.state_dict(), os.path.join(out_dir, f"disc_{suffix}.pth"))
-    torch.save(opt_G.state_dict(), os.path.join(out_dir, f"gen_optim_{suffix}.pth"))
-    torch.save(opt_D.state_dict(), os.path.join(out_dir, f"disc_optim_{suffix}.pth"))
+    if not withoutOpt:
+        torch.save(opt_G.state_dict(), os.path.join(out_dir, f"gen_optim_{suffix}.pth"))
+        torch.save(
+            opt_D.state_dict(), os.path.join(out_dir, f"disc_optim_{suffix}.pth")
+        )
+
+
+def get_num_params(model):
+    total_params = sum(p.numel() for p in model.parameters())
+    return total_params
+
+
+def detach_tuple(Tuple):
+    return (x.detach_() for x in Tuple)
 
 
 def get_plot_func(out_dir, img_size, num_samples_eval=10000, save_curves=None):
