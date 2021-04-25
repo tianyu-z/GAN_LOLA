@@ -468,19 +468,17 @@ def train_2nd_order_manual(
             # Calculating the JVP
             dLD_dG = torch.autograd.grad(lossD, G.parameters(), create_graph=True)
             dLG_dD = torch.autograd.grad(lossG, D.parameters(), create_graph=True)
-            dLD_dG_ = dLD_dG.clone()
-            dLG_dD_ = dLG_dD.clone()
             J_D_P_dLG_dD = torch.autograd.grad(
-                gradsD, G.parameters(), grad_outputs=dLG_dD
+                gradsD, G.parameters(), grad_outputs=dLG_dD, retain_graph=True
             )  # lola
             J_G_P_dLD_dG = torch.autograd.grad(
-                gradsG, D.parameters(), grad_outputs=dLD_dG
+                gradsG, D.parameters(), grad_outputs=dLD_dG, retain_graph=True
             )  # lola
             J_D_P_grad_G = torch.autograd.grad(
-                dLD_dG_, D.parameters(), grad_outputs=gradsG
+                dLD_dG, D.parameters(), grad_outputs=gradsG
             )  # lookahead
             J_G_P_grad_D = torch.autograd.grad(
-                dLG_dD_, G.parameters(), grad_outputs=gradsD
+                dLG_dD, G.parameters(), grad_outputs=gradsD
             )  # lookahead
             # Calculating the LOLA Step
             gradsD_both = detach_tuple(gradsD + J_G_P_dLD_dG * eta + J_D_P_grad_G * eta)
