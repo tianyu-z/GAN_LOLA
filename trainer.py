@@ -385,7 +385,6 @@ def train_2nd_order_manual(
     batch_size=32,
     lrD=0.01,
     lrG=0.01,
-    eta=1,
     eval_every=100,
     n_workers=4,
     device=torch.device("cpu"),

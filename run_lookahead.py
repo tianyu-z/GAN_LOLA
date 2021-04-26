@@ -16,7 +16,6 @@ args = dict(
     batch_size=128,
     lrD=0.001,
     lrG=0.001,
-    eta=1,
     eval_every=5000,
     n_workers=4,
     device="cuda",
@@ -25,11 +24,13 @@ args = dict(
 )
 
 for k in range(1, 5 + 1):
-    exp_key = (
-        f"type_{args['type_']}_eta{args['eta']}_iter{args['iterations']}_bs{args['batch_size']}_lrD{args['lrD']}"
-        + f"_lrG{args['lrG']}"
-        + f"_ee{args['eval_every']}"
-    )
+    if args["adaptive_weight_opt"] is not None:
+        adaptive_weight_opt_name = "_" + args["adaptive_weight_opt"][0] + "_" + str(args["adaptive_weight_opt"][1]) + "_" + str(
+            args["adaptive_weight_opt"][2]) + "_" + str(args["adaptive_weight_opt"][3])
+    else:
+        adaptive_weight_opt_name = "_"
+    exp_key = f"iter{args['iterations']}_bs{args['batch_size']}_lrD{args['lrD']}" + \
+              f"_lrG{args['lrG']}_eta{args['eta']}_type_{args['type_']}" + f"_ee{args['eval_every']}" + adaptive_weight_opt_name
     out_dir = f"./results/final/{exp_key}/{k}/"
 
     shutil.rmtree(out_dir, ignore_errors=True)
@@ -56,7 +57,6 @@ for k in range(1, 5 + 1):
         batch_size=args["batch_size"],
         lrD=args["lrD"],
         lrG=args["lrG"],
-        eta=args["eta"],
         eval_every=args["eval_every"],
         n_workers=args["n_workers"],
         device=torch.device(args["device"]),

@@ -16,7 +16,6 @@ args = dict(
     batch_size=128,
     lrD=0.001,
     lrG=0.001,
-    eta="NA",
     eval_every=5000,
     n_workers=4,
     device="cuda",
@@ -25,7 +24,7 @@ args = dict(
 
 for k in range(1, 5 + 1):
     exp_key = (
-        f"type_{args['type_']}_eta{args['eta']}_iter{args['iterations']}_bs{args['batch_size']}_lrD{args['lrD']}"
+        f"type_{args['type_']}_iter{args['iterations']}_bs{args['batch_size']}_lrD{args['lrD']}"
         + f"_lrG{args['lrG']}"
         + f"_ee{args['eval_every']}"
     )
