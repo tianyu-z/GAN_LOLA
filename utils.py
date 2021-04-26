@@ -118,8 +118,8 @@ def get_update_tuple(first, second, third=None, eta=1, isBoth=False, isadpative=
     if isadpative:
         assert isinstance(
             eta, (list, tuple)
-        ), "eta needs to be list or tuple because it's adpative"
-        assert not isBoth, "adpative weight is not support for both yet!"
+        ), "eta needs to be list or tuple because it's adaptive"
+        assert not isBoth, "adaptive weight is not support for both yet!"
         return tuple(map(operator.add, first, tuple(map(operator.mul, second, eta))))
     else:
         if isBoth:

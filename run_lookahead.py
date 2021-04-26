@@ -21,6 +21,7 @@ args = dict(
     n_workers=4,
     device="cuda",
     type_="lookahead",
+    adaptive_weight_opt=["top", 1, 0.2, 10]
 )
 
 for k in range(1, 5 + 1):
@@ -62,4 +63,5 @@ for k in range(1, 5 + 1):
         plot_func=plot_func,
         out_dir=out_dir,
         type_=args["type_"],
+        adaptive_weight_opt=args["adaptive_weight_opt"]
     )
