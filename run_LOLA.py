@@ -68,6 +68,10 @@ _NOISE_DIM = args.noise_dim
 _H_FILTERS = args.h_filter
 adaptive_weight_opt = [args.amethod, args.alpha, args.atop, args.anumparams]
 for k in range(1, 5 + 1):
+    if args.zerosum:
+        zerosum_name = "zerosum"
+    else:
+        zerosum_name = "non_zerosum"
     if adaptive_weight_opt is not None:
         adaptive_weight_opt_name = (
             "_"
@@ -85,6 +89,7 @@ for k in range(1, 5 + 1):
         f"type_{args.type_}_iter{args.iterations}_bs{args.batch_size}_lrD{args.lrD}"
         + f"_lrG{args.lrG}"
         + f"_ee{args.eval_every}"
+        + f"_{zerosum_name}_"
         + adaptive_weight_opt_name
     )
     out_dir = f"./results/final/{exp_key}/{k}/"
@@ -120,4 +125,5 @@ for k in range(1, 5 + 1):
         out_dir=out_dir,
         type_=args.type_,
         adaptive_weight_opt=adaptive_weight_opt,
+        is_zerosum=args.zerosum,
     )
