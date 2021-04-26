@@ -62,7 +62,7 @@ parser.add_argument(
     default=10,
     help="at least we need so much params",
 )
-
+parser.add_argument("--zerosum", action="store_true", help="use zero sum.")
 args = parser.parse_args()
 _NOISE_DIM = args.noise_dim
 _H_FILTERS = args.h_filter

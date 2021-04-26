@@ -392,6 +392,7 @@ def train_2nd_order_manual(
     out_dir=None,
     type_="lookahead",
     adaptive_weight_opt=["top", 1, 0.1, 10],
+    is_zerosum=False,
 ):
     if adaptive_weight_opt is not None:
         isadaptive = True
@@ -422,7 +423,7 @@ def train_2nd_order_manual(
 
         # loss G
         z = torch.randn(batch_size, G.noise_dim, device=device)
-        lossG = get_generator_loss(G, D, z, lbl_real)
+        lossG = get_generator_loss(G, D, z, lbl_real, is_zerosum=is_zerosum)
 
         # Calculating the SGD terms
         gradsD = torch.autograd.grad(lossD, D.parameters(), create_graph=True)
