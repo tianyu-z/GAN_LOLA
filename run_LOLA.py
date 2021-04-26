@@ -63,7 +63,7 @@ parser.add_argument(
     help="at least we need so much params",
 )
 
-args = parser.parse_args(args=[])
+args = parser.parse_args()
 _NOISE_DIM = args.noise_dim
 _H_FILTERS = args.h_filter
 adaptive_weight_opt = [args.amethod, args.alpha, args.atop, args.anumparams]
@@ -85,7 +85,7 @@ for k in range(1, 5 + 1):
         f"type_{args.type_}_iter{args.iterations}_bs{args.batch_size}_lrD{args.lrD}"
         + f"_lrG{args.lrG}"
         + f"_ee{args.eval_every}"
-        + adaptive_weight_opt_name
+        + f"_{adaptive_weight_opt_name}"
     )
     out_dir = f"./results/final/{exp_key}/{k}/"
 
