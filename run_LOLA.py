@@ -19,7 +19,8 @@ args = dict(iterations=100000,
             eval_every=5000,
             n_workers=4,
             device='cuda',
-            type_="lola")
+            type_="lola",
+            adpative_weight_opt=["top", 1, 0.2, 10])
 
 for k in range(1, 5 + 1):
     exp_key = f"type_{args['type_']}_eta{args['eta']}_iter{args['iterations']}_bs{args['batch_size']}_lrD{args['lrD']}" + \
@@ -53,4 +54,5 @@ for k in range(1, 5 + 1):
                            device=torch.device(args['device']),
                            plot_func=plot_func,
                            out_dir=out_dir,
-                           type_=args['type_'], )
+                           type_=args['type_'],
+                           adpative_weight_opt=args["adpative_weight_opt"])
