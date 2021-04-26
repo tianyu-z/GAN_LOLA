@@ -91,6 +91,7 @@ for k in range(1, 5 + 1):
         + f"_ee{args.eval_every}"
         + f"_{zerosum_name}_"
         + adaptive_weight_opt_name
+        + f"_{_NOISE_DIM}-{_H_FILTERS}"
     )
     out_dir = f"./results/final/{exp_key}/{k}/"
 
