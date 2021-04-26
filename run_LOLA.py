@@ -120,4 +120,5 @@ for k in range(1, 5 + 1):
         out_dir=out_dir,
         type_=args.type_,
         adaptive_weight_opt=adaptive_weight_opt,
+        is_zerosum=args.zerosum,
     )
