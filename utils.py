@@ -114,8 +114,8 @@ def get_plot_func(out_dir, img_size, num_samples_eval=10000, save_curves=None):
     return plot_func
 
 
-def get_update_tuple(first, second, third=None, eta=1, isBoth=False, isadpative=False):
-    if isadpative:
+def get_update_tuple(first, second, third=None, eta=1, isBoth=False, isadaptive=False):
+    if isadaptive:
         assert isinstance(
             eta, (list, tuple)
         ), "eta needs to be list or tuple because it's adaptive"
@@ -138,8 +138,8 @@ def get_update_tuple(first, second, third=None, eta=1, isBoth=False, isadpative=
             )
 
 
-def adpative_weight_func(method="median", alpha=0.1, top=0.01, least_num_entry=10):
-    def adpative_weight(
+def adaptive_weight_func(method="median", alpha=0.1, top=0.01, least_num_entry=10):
+    def adaptive_weight(
         f, s, method=method, alpha=alpha, top=top, least_num_entry=least_num_entry
     ):
         first = torch.abs(f.detach().reshape(-1))
@@ -158,4 +158,4 @@ def adpative_weight_func(method="median", alpha=0.1, top=0.01, least_num_entry=1
             )
             return alpha * torch.median(first).item() / second_topmean.item()
 
-    return adpative_weight
+    return adaptive_weight

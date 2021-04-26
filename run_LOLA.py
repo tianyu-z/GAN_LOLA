@@ -29,8 +29,8 @@ for k in range(1, 5 + 1):
             args["adaptive_weight_opt"][2]) + "_" + str(args["adaptive_weight_opt"][3])
     else:
         adaptive_weight_opt_name = "_"
-    exp_key = f"iter{args['iterations']}_bs{args['batch_size']}_lrD{args['lrD']}" + \
-              f"_lrG{args['lrG']}_eta{args['eta']}_type_{args['type_']}" + f"_ee{args['eval_every']}" + adaptive_weight_opt_name
+    exp_key = f"type_{args['type_']}_iter{args['iterations']}_bs{args['batch_size']}_lrD{args['lrD']}" + \
+              f"_lrG{args['lrG']}" + f"_ee{args['eval_every']}" + adaptive_weight_opt_name
     out_dir = f"./results/final/{exp_key}/{k}/"
 
     shutil.rmtree(out_dir, ignore_errors=True)
