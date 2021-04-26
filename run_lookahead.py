@@ -15,7 +15,7 @@ parser.add_argument(
     "-noise", "--noise_dim", type=int, default=8, help="noise_dim.",
 )
 parser.add_argument(
-    "-h", "--h_filter", type=int, default=4, help="h_filter.",
+    "-hf", "--h_filter", type=int, default=4, help="h_filter.",
 )
 
 parser.add_argument(
