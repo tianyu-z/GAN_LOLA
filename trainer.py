@@ -5,7 +5,7 @@ import copy
 from data import get_sampler
 from updates import Lookahead, update_avg_gen, update_ema_gen
 from losses import get_generator_loss, get_disciminator_loss
-from utils import save_models, detach_tuple, get_update_tuple
+from utils import save_models, detach_tuple, get_update_tuple, adpative_weight_func
 
 
 def train(
@@ -392,8 +392,11 @@ def train_2nd_order_manual(
     plot_func=lambda a, b, c, d: None,
     out_dir=None,
     type_="lookahead",
+    adpative_weight_opt=["top", 1, 0.1, 10],
 ):
-
+    if adpative_weight_opt is not None:
+        isadpative = True
+        adpative_weight = adpative_weight_func(*adpative_weight_opt)
     sampler = get_sampler(
         dataset, batch_size, shuffle=True, num_workers=n_workers, drop_last=True
     )
@@ -437,12 +440,35 @@ def train_2nd_order_manual(
             )
 
             # Calculating the LookAhead Step
-            gradsD_LookAhead = detach_tuple(
-                get_update_tuple(gradsD, J_D_P_grad_G, third=None, eta=eta)
-            )
-            gradsG_LookAhead = detach_tuple(
-                get_update_tuple(gradsG, J_G_P_grad_D, third=None, eta=eta)
-            )
+            if isadpative:
+                etaD_tuple = tuple(map(adpative_weight, gradsD, J_D_P_grad_G))
+                etaG_tuple = tuple(map(adpative_weight, gradsG, J_G_P_grad_D))
+                gradsD_LookAhead = detach_tuple(
+                    get_update_tuple(
+                        gradsD,
+                        J_D_P_grad_G,
+                        third=None,
+                        eta=etaD_tuple,
+                        isadpative=isadpative,
+                    )
+                )
+                gradsG_LookAhead = detach_tuple(
+                    get_update_tuple(
+                        gradsG,
+                        J_G_P_grad_D,
+                        third=None,
+                        eta=etaG_tuple,
+                        isadpative=isadpative,
+                    )
+                )
+
+            else:
+                gradsD_LookAhead = detach_tuple(
+                    get_update_tuple(gradsD, J_D_P_grad_G, third=None, eta=eta)
+                )
+                gradsG_LookAhead = detach_tuple(
+                    get_update_tuple(gradsG, J_G_P_grad_D, third=None, eta=eta)
+                )
             if i == 0:
                 # Checking the Params
                 assert len(list(D.parameters())) == len(
@@ -469,12 +495,35 @@ def train_2nd_order_manual(
                 gradsG, D.parameters(), grad_outputs=dLD_dG
             )
             # Calculating the LOLA Step
-            gradsD_LOLA = detach_tuple(
-                get_update_tuple(gradsD, J_G_P_dLD_dG, third=None, eta=eta)
-            )
-            gradsG_LOLA = detach_tuple(
-                get_update_tuple(gradsG, J_D_P_dLG_dD, third=None, eta=eta)
-            )
+            # Calculating the LookAhead Step
+            if isadpative:
+                etaD_tuple = tuple(map(adpative_weight, gradsD, J_G_P_dLD_dG))
+                etaG_tuple = tuple(map(adpative_weight, gradsG, J_D_P_dLG_dD))
+                gradsD_LOLA = detach_tuple(
+                    get_update_tuple(
+                        gradsD,
+                        J_G_P_dLD_dG,
+                        third=None,
+                        eta=etaD_tuple,
+                        isadpative=isadpative,
+                    )
+                )
+                gradsG_LOLA = detach_tuple(
+                    get_update_tuple(
+                        gradsG,
+                        J_D_P_dLG_dD,
+                        third=None,
+                        eta=etaG_tuple,
+                        isadpative=isadpative,
+                    )
+                )
+            else:
+                gradsD_LOLA = detach_tuple(
+                    get_update_tuple(gradsD, J_G_P_dLD_dG, third=None, eta=eta)
+                )
+                gradsG_LOLA = detach_tuple(
+                    get_update_tuple(gradsG, J_D_P_dLG_dD, third=None, eta=eta)
+                )
             if i == 0:
                 # Checking the Params
                 assert len(list(D.parameters())) == len(

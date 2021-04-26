@@ -114,15 +114,48 @@ def get_plot_func(out_dir, img_size, num_samples_eval=10000, save_curves=None):
     return plot_func
 
 
-def get_update_tuple(first, second, third=None, eta=1, isBoth=False):
-    if isBoth:
-        return tuple(
-            map(
-                operator.add,
-                tuple(map(operator.add, first, tuple(map(lambda x: x * eta, second)))),
-                tuple(map(lambda x: x * eta, third)),
-            )
-        )
+def get_update_tuple(first, second, third=None, eta=1, isBoth=False, isadpative=False):
+    if isadpative:
+        assert isinstance(
+            eta, (list, tuple)
+        ), "eta needs to be list or tuple because it's adpative"
+        assert not isBoth, "adpative weight is not support for both yet!"
+        return tuple(map(operator.add, first, tuple(map(operator.mul, second, eta))))
     else:
-        return tuple(map(operator.add, first, tuple(map(lambda x: x * eta, second))))
+        if isBoth:
+            return tuple(
+                map(
+                    operator.add,
+                    tuple(
+                        map(operator.add, first, tuple(map(lambda x: x * eta, second)))
+                    ),
+                    tuple(map(lambda x: x * eta, third)),
+                )
+            )
+        else:
+            return tuple(
+                map(operator.add, first, tuple(map(lambda x: x * eta, second)))
+            )
 
+
+def adpative_weight_func(method="median", alpha=0.1, top=0.01, least_num_entry=10):
+    def adpative_weight(
+        f, s, method=method, alpha=alpha, top=top, least_num_entry=least_num_entry
+    ):
+        first = torch.abs(f.detach().reshape(-1))
+        second = torch.abs(s.detach().reshape(-1))
+        if method == "median":
+            return alpha * torch.median(first).item() / torch.median(second).item()
+        elif method == "mean":
+            return alpha * torch.mean(first).item() / torch.mean(second).item()
+        elif method == "top":
+            top_idx = int(len(second) * top)
+            assert (
+                top_idx > least_num_entry
+            ), "too few params in the second input, please decrease the top"
+            second_topmean = torch.mean(
+                (torch.sort(second, descending=True)[0][:top_idx])
+            )
+            return alpha * torch.median(first).item() / second_topmean.item()
+
+    return adpative_weight
