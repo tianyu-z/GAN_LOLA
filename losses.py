@@ -11,8 +11,11 @@ def get_disciminator_loss(D, x_real, x_gen, lbl_real, lbl_fake):
     return lossD
 
 
-def get_generator_loss(G, D, z, lbl_real):
+def get_generator_loss(G, D, z, lbl_real, is_zerosum=False):
     """"""
     D_G_z = D(G(z))
-    lossG = torch.binary_cross_entropy_with_logits(D_G_z, lbl_real).mean()
+    if is_zerosum:
+        lossG = -torch.binary_cross_entropy_with_logits(1 - D_G_z, lbl_real).mean()
+    else:
+        lossG = torch.binary_cross_entropy_with_logits(D_G_z, lbl_real).mean()
     return lossG
