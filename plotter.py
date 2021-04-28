@@ -10,18 +10,24 @@ import seaborn as sns
 import shutil
 
 
-def compare_experiments(file1, file2, file3=None, title=None):
+def compare_experiments(file1, file2, file3=None, title=None, savepath=None):
     out_dir = 'plots/combined/'
 
     #shutil.rmtree(out_dir, ignore_errors=True)
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     if file3 is not None:
-        savepath = f'{out_dir}{file1.split("/")[-1]}_&_{file2.split("/")[-1]}_&_{file3.split("/")[-1]}'
+        if savepath is None:
+            savepath = f'{out_dir}{file1.split("/")[-1]}_&_{file2.split("/")[-1]}_&_{file3.split("/")[-1]}'
+        else:
+            savepath = f'{out_dir}{savepath}'
         files = [file1, file2, file3]
         nc = 3
     else:
-        savepath = f'{out_dir}{file1.split("/")[-1]}_&_{file2.split("/")[-1]}'
+        if savepath is None:
+            savepath = f'{out_dir}{file1.split("/")[-1]}_&_{file2.split("/")[-1]}'
+        else:
+            savepath = f'{out_dir}{savepath}'
         files = [file1, file2]
         nc = 2
 
@@ -66,7 +72,7 @@ def compare_experiments(file1, file2, file3=None, title=None):
     ax1.set_xlabel('Iterations (x5K)')
     ax1.set_ylabel('Inception score')
     ax1.set_xlim(left=0, right=30)
-    ax1.set_ylim(bottom=0, top=8)
+    ax1.set_ylim(bottom=6, top=8)
     plt.savefig(f'{savepath}_IS.png')
     plt.clf()
 
@@ -77,7 +83,7 @@ def compare_experiments(file1, file2, file3=None, title=None):
     ax2.set_xlabel('Iterations (x5K)')
     ax2.set_ylabel('Inception score')
     ax2.set_xlim(left=0, right=30)
-    ax2.set_ylim(bottom=0, top=80)
+    ax2.set_ylim(bottom=0, top=20)
     plt.savefig(f'{savepath}_FID.png')
     plt.clf()
 
@@ -177,5 +183,7 @@ plot_experiment(filepath)
 
 compare_experiments('results/8-4/type_sgd_etaNA_iter300000_bs128_lrD0.001_lrG0.001_ee5000',
                     'results/8-4/type_lola_iter300000_bs128_lrD0.001_lrG0.001_ee5000_top_0.1_0.2_10',
-                    title="SGD vs LOLA, small net")
+                    'results/8-4/type_lookahead_iter200000_bs128_lrD0.001_lrG0.001_ee5000_top_0.1_0.2_10',
+                    title='SGD vs LOLA vs LookAhead, small net',
+                    savepath='sgd_lola_la')
 
